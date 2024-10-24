@@ -10,54 +10,61 @@ const Assessment = () => {
   const [isFetched, setIsFetched] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [questionNo, setQuestionNo] = useState(1);
-  const [answers, setAnswers] = useState([]);
-  console.log(answers);
+  const [selectedOptions, setSelectedOptions] = useState([]);
 
   useEffect(() => {
     const url = "https://apis.ccbp.in/assess/questions";
     const options = {
       method: "GET",
     };
-    async function getData() {
-      const response = await fetch(url, options);
-      const data = await response.json();
-      if (response.ok) {
-        setIsLoading(false);
-        setIsFetched(true);
-        setQuestionsData(data.questions);
-      } else {
+    const getData = async () => {
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+
+        if (response.ok) {
+          setQuestionsData(data.questions);
+          setIsFetched(true);
+        } else {
+          setIsFetched(false);
+        }
+      } catch (error) {
         setIsFetched(false);
-        setIsLoading(false);
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false); // Always set loading to false after fetching
       }
-    }
+    };
     getData();
   }, []);
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (!isFetched || questionsData.length === 0) {
+    return <Failure />;
+  }
 
   return (
     <>
       <Header />
-      {isFetched ? (
-        <section className="flex w-full h-[90vh] p-4 bg-[#FAFBFE]">
-          <Questions
-            questions={questionsData}
-            question={questionsData[questionNo - 1]}
-            questionNo={questionNo}
-            setQuestionNo={setQuestionNo}
-            setAnswers={setAnswers}
-            answers={answers}
-          />
-          <Information
-            questions={questionsData}
-            questionNo={questionNo}
-            setQuestionNo={setQuestionNo}
-            answers={answers}
-          />
-        </section>
-      ) : isLoading ? (
-        <Loading />
-      ) : (
-        <Failure />
-      )}
+      <section className="flex w-full h-[90vh] p-4 bg-[#FAFBFE]">
+        <Questions
+          questions={questionsData}
+          question={questionsData[questionNo - 1]}
+          questionNo={questionNo}
+          setQuestionNo={setQuestionNo}
+          setSelectedOptions={setSelectedOptions}
+          selectedOptions={selectedOptions}
+        />
+        <Information
+          questions={questionsData}
+          questionNo={questionNo}
+          setQuestionNo={setQuestionNo}
+          selectedOptions={selectedOptions}
+        />
+      </section>
     </>
   );
 };

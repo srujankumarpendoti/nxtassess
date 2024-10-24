@@ -1,11 +1,17 @@
+import { Link, useLocation, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+
 import Header from "../components/Header";
-import { useLocation, useNavigate } from "react-router-dom";
 
 const Results = () => {
-  const navigate = useNavigate();
+  const [score, setScore] = useState(0);
   const { state } = useLocation();
-  const { time, timeGiven } = state;
-  console.log(state);
+  const { time, timeGiven, selectedOptions } = state;
+
+  useEffect(() => {
+    const count = selectedOptions.filter((each) => each.isCorrect === "true");
+    setScore(count.length);
+  }, []);
 
   const timeTaken = timeGiven - time;
 
@@ -30,12 +36,12 @@ const Results = () => {
                 alt="submit"
                 className="w-80 mb-4"
               />
-              <p className="text-[#334155] text-2xl font-medium my-4 text-center">
-                Congrats! You completed the assessment.
-              </p>
+              <h1 className="text-[#334155] text-2xl font-medium my-4 text-center">
+                Congrats! You completed the assessment
+              </h1>
               <div className="flex items-center my-4">
                 <p className="text-[#334155] text-lg font-medium mr-2 ">
-                  Time Taken:{" "}
+                  Time Taken:
                 </p>
                 <p className="text-[#164687] text-2xl font-medium">
                   {formatTime(timeTaken)}
@@ -50,9 +56,9 @@ const Results = () => {
                 alt="time up"
                 className="w-80 mb-4"
               />
-              <p className="text-[#334155] text-4xl font-medium my-4 text-center">
-                Time is up
-              </p>
+              <h1 className="text-[#334155] text-4xl font-medium my-4 text-center">
+                Time is up!
+              </h1>
               <p className="text-[#64748B] text-base mr-2 text-center">
                 You did not complete the assessment within the time.
               </p>
@@ -63,14 +69,16 @@ const Results = () => {
             <p className="text-[#164687] text-2xl font-medium mr-2">
               Your Score:
             </p>
-            <p className="text-[#164687] text-5xl font-bold">5</p>
+            <p className="text-[#164687] text-5xl font-bold">{score}</p>
           </div>
-          <button
-            onClick={() => navigate("/")}
-            className="bg-[#164687] text-white rounded text-sm font-medium py-2 px-4 my-8"
-          >
-            Reattempt
-          </button>
+          <Link to="/assessment">
+            <button
+              type="button"
+              className="bg-[#164687] text-white rounded text-sm font-medium py-2 px-4 my-8"
+            >
+              Reattempt
+            </button>
+          </Link>
         </div>
       </section>
     </>

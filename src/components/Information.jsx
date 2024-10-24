@@ -2,8 +2,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const Information = ({ questions, questionNo, setQuestionNo, answers }) => {
+const Information = ({
+  questions,
+  questionNo,
+  setQuestionNo,
+  selectedOptions,
+}) => {
   const navigate = useNavigate();
+
+  const answerCount = selectedOptions.length;
+  const unAnswerCount = questions.length - answerCount;
 
   const [time, setTime] = useState(600);
 
@@ -16,7 +24,8 @@ const Information = ({ questions, questionNo, setQuestionNo, answers }) => {
     }
     if (time === 0) {
       clearInterval(intervalId);
-      navigate("/results", { state: { time: 0 } });
+
+      navigate("/results", { state: { time: 0, selectedOptions } });
     }
     return () => clearInterval(intervalId);
   }, [time]);
@@ -27,6 +36,10 @@ const Information = ({ questions, questionNo, setQuestionNo, answers }) => {
     return `${hours.toString().padStart(2, "0")}:${minutes
       .toString()
       .padStart(2, "0")}:${secondsRemaining.toString().padStart(2, "0")}`;
+  };
+
+  const handleSubmit = () => {
+    navigate("/results", { state: { time, timeGiven: 600, selectedOptions } });
   };
 
   return (
@@ -40,51 +53,56 @@ const Information = ({ questions, questionNo, setQuestionNo, answers }) => {
         <div>
           <div className="flex justify-between items-center ">
             <div className="flex items-center">
-              <span className="flex justify-center items-center bg-[#7C599F] w-8 h-8 p-4 rounded-full text-[#F8FAFC] mr-2">
-                0
-              </span>
+              <p className="flex justify-center items-center bg-[#7C599F] w-8 h-8 p-4 rounded-full text-[#F8FAFC] mr-2">
+                {answerCount}
+              </p>
               <p className="text-[#496387] text-sm">Answered Questions</p>
             </div>
             <div className="flex items-center">
-              <span className="flex justify-center items-center bg-transparent w-8 h-8 p-4 rounded-full text-[#64748B] border mr-2">
-                {questions.length}
-              </span>
+              <p className="flex justify-center items-center bg-transparent w-8 h-8 p-4 rounded-full text-[#64748B] border mr-2">
+                {unAnswerCount}
+              </p>
               <p className="text-[#496387] text-sm">Unanswered Questions</p>
             </div>
           </div>
           <hr className="my-4" />
           <div className="">
             <h1 className="text-[#164687] font-medium my-2">
-              Questions({questions.length})
+              Questions ({questions.length})
             </h1>
             <ul className="flex flex-wrap gap-2">
               {questions.map((each, index) => (
-                <li
-                  onClick={() => setQuestionNo(index + 1)}
-                  key={index + 1}
-                  className={`flex  justify-center items-center bg-[#EFF6FF] w-8 h-8 border rounded text-[#64748B] cursor-pointer
-                  ${questionNo === index + 1 && "border border-[#60A5FA]"}  
-                  ${
-                    answers.find((each) => each.questionNo === index + 1)
-                      ? "bg-[#7C599F] border-[##7C599F]"
-                      : ""
-                  }
-                  `}
-                >
-                  {index + 1}
+                <li key={index}>
+                  <button
+                    type="button"
+                    className={`flex  justify-center items-center bg-[#FAFBFE] w-8 h-8 border rounded text-[#64748B] cursor-pointer
+                   ${
+                     selectedOptions.find(
+                       (answer) => answer.questionNo === index + 1
+                     ) && "bg-[#7C599F26] border border-[#7C599F]"
+                   } ${
+                      questionNo === index + 1 &&
+                      "border border-[#60A5FA] bg-[#EFF6FF]"
+                    }`}
+                    onClick={() => setQuestionNo(index + 1)}
+                  >
+                    {index + 1}
+                  </button>
                 </li>
               ))}
             </ul>
           </div>
         </div>
+        {/* <Link to="/results" state={{time, timeGiven: 600}}> */}
         <button
-          onClick={() =>
-            navigate("/results", { state: { time: time, timeGiven: 600 } })
-          }
+          type="button"
+          onClick={handleSubmit}
+          //   onClick={() => navigate('/results', {state: {time, timeGiven: 600}})}
           className="self-center w-full m-4 py-2 text-[#164687] text-base border border-[#164687] rounded"
         >
           Submit Assessment
         </button>
+        {/* </Link> */}
       </div>
     </div>
   );
